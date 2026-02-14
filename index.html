@@ -8,14 +8,13 @@
         body { 
             margin: 0; 
             padding: 0; 
-            background: #0d0407; /* Fondo oscuro elegante */
+            background: #0d0407; 
             overflow: hidden; 
             display: flex; 
             justify-content: center; 
             align-items: center; 
             height: 100vh; 
             font-family: 'Arial', sans-serif; 
-            flex-direction: column; 
         }
         h1 { 
             position: absolute; 
@@ -25,7 +24,7 @@
             color: #ffb3c6;
             letter-spacing: 2px; 
             text-shadow: 0 0 15px #ff2a6d; 
-            animation: fadeIn 4s ease-in; 
+            animation: fadeIn 3s ease-in; 
             z-index: 10; 
             pointer-events: none;
             width: 90%;
@@ -50,61 +49,75 @@
         const canvas = document.getElementById("lienzo");
         const ctx = canvas.getContext("2d");
         
-        // Ajustar tamaño a la pantalla del celular
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
-        let frameCount = 0;
+        let escala = 0;
+        let anguloRotacion = 0;
 
-        function animarFlor() {
-            // Un fondo semitransparente en cada frame para crear un ligero resplandor
-            ctx.fillStyle = "rgba(13, 4, 7, 0.05)";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        function dibujarFlor() {
+            // Limpiamos la pantalla por completo en cada fotograma
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
             
             ctx.save();
-            ctx.translate(canvas.width / 2, canvas.height / 2 + 30); // Centrado un poco más abajo
+            // Movemos el eje al centro de la pantalla
+            ctx.translate(canvas.width / 2, canvas.height / 2 + 20);
             
-            // Matemática de la flor (crecimiento en espiral áurea)
-            let n = frameCount;
-            let c = 7; // Escala de separación de los pétalos
-            let a = n * 137.5; // Ángulo áureo
-            let r = c * Math.sqrt(n);
-            
-            // Coordenadas cartesianas
-            let x = r * Math.cos(a * Math.PI / 180);
-            let y = r * Math.sin(a * Math.PI / 180);
-            
-            // Colores que van variando entre rosas, rojos y magenta
-            let hue = (a % 50) + 320; 
-            
-            ctx.fillStyle = `hsl(${hue}, 100%, 60%)`;
-            ctx.shadowBlur = 10;
-            ctx.shadowColor = `hsl(${hue}, 100%, 50%)`;
-            
-            ctx.beginPath();
-            // Tamaño de cada pétalo dibujado
-            ctx.arc(x, y, 4 + (n * 0.005), 0, Math.PI * 2);
-            ctx.fill();
-            ctx.restore();
-            
-            // Limitar el crecimiento para que no cubra toda la pantalla
-            if (frameCount < 1000) {
-                frameCount++;
-                requestAnimationFrame(animarFlor);
+            // Aplicamos el crecimiento y la rotación suave
+            ctx.scale(escala, escala);
+            ctx.rotate(anguloRotacion);
+
+            // Dibujamos 8 pétalos
+            let cantidadPetalos = 8;
+            for (let i = 0; i < cantidadPetalos; i++) {
+                ctx.rotate((Math.PI * 2) / cantidadPetalos);
+                ctx.beginPath();
+                
+                // Curvas para darle forma orgánica al pétalo
+                ctx.moveTo(0, 0);
+                ctx.quadraticCurveTo(60, -60, 120, 0);
+                ctx.quadraticCurveTo(60, 60, 0, 0);
+                
+                // Color rosa vibrante con un poco de transparencia
+                ctx.fillStyle = "rgba(255, 42, 109, 0.85)"; 
+                ctx.fill();
+                
+                // Borde del pétalo
+                ctx.strokeStyle = "#ffb3c6";
+                ctx.lineWidth = 2;
+                ctx.stroke();
             }
+
+            // Dibujamos el centro amarillo de la flor
+            ctx.beginPath();
+            ctx.arc(0, 0, 25, 0, Math.PI * 2);
+            ctx.fillStyle = "#ffcc00"; 
+            ctx.fill();
+            
+            // Le damos un brillo al centro
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = "#ffcc00";
+
+            ctx.restore();
+
+            // Lógica de la animación
+            if (escala < 1) {
+                escala += 0.015; // Velocidad de crecimiento
+            }
+            anguloRotacion += 0.003; // Velocidad de giro
+
+            requestAnimationFrame(dibujarFlor);
         }
 
-        // Iniciar la animación
-        animarFlor();
+        // Iniciamos la animación
+        dibujarFlor();
 
-        // Reajustar si giran el teléfono
+        // Ajuste si se gira la pantalla del teléfono
         window.addEventListener('resize', () => {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            frameCount = 0; // Reinicia la flor si se cambia la pantalla
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            animarFlor();
         });
     </script>
 </body>
 </html>
+
